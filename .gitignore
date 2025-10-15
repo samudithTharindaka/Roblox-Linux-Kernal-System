@@ -1,0 +1,29 @@
+# Project place files
+/LinuxKernalSystem.rbxlx
+/LinuxKernalSystem.rbxl
+
+# Roblox Studio lock files
+/*.rbxlx.lock
+/*.rbxl.lock
+
+# Rojo build artifacts
+*.rbxm
+*.rbxl
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
