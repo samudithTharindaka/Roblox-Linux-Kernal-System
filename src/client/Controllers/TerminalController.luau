@@ -10,6 +10,8 @@ local TerminalUI = require(script.Parent.Parent.UI.TerminalUI)
 local NanoEditor = require(script.Parent.Parent.UI.NanoEditor)
 local HtopViewer = require(script.Parent.Parent.UI.HtopViewer)
 local TerminalButton = require(script.Parent.Parent.UI.TerminalButton)
+local HandbookUI = require(script.Parent.Parent.UI.HandbookUI)
+local HandbookButton = require(script.Parent.Parent.UI.HandbookButton)
 local Constants = require(ReplicatedStorage.Shared.Constants)
 local Utils = require(ReplicatedStorage.Shared.Utils)
 
@@ -27,6 +29,8 @@ function TerminalController.new()
 	self.nanoEditor = NanoEditor.new(self.playerGui)
 	self.htopViewer = HtopViewer.new(self.playerGui)
 	self.terminalButton = TerminalButton.new(self.playerGui)
+	self.handbookUI = HandbookUI.new(self.playerGui)
+	self.handbookButton = HandbookButton.new(self.playerGui)
 
 	-- Command history
 	self.commandHistory = {}
@@ -46,6 +50,7 @@ function TerminalController.new()
 	self:_setupInput()
 	self:_setupNanoEditor()
 	self:_setupTerminalButton()
+	self:_setupHandbookButton()
 
 	return self
 end
@@ -103,6 +108,12 @@ function TerminalController:_setupInput()
 			self.terminalButton:setTerminalState(self.terminalUI.isVisible)
 		end
 
+		-- F1 key toggles handbook
+		if input.KeyCode == Enum.KeyCode.F1 then
+			self.handbookUI:toggle()
+			self.handbookButton:setHandbookState(self.handbookUI.isVisible)
+		end
+
 		-- Command history navigation
 		if self.terminalUI.isVisible and self.terminalUI.inputBox:IsFocused() then
 			if input.KeyCode == Enum.KeyCode.Up then
@@ -138,6 +149,17 @@ function TerminalController:_setupTerminalButton()
 
 	-- Show button
 	self.terminalButton:show()
+end
+
+function TerminalController:_setupHandbookButton()
+	-- Handle button toggle
+	self.handbookButton:onToggle(function()
+		self.handbookUI:toggle()
+		self.handbookButton:setHandbookState(self.handbookUI.isVisible)
+	end)
+
+	-- Show button
+	self.handbookButton:show()
 end
 
 function TerminalController:_executeCommand(command: string)
@@ -217,15 +239,16 @@ function TerminalController:showWelcome()
 	welcome = welcome .. Utils.colorText("║       Welcome to RobloxOS Simulator       ║", green) .. "\n"
 	welcome = welcome .. Utils.colorText("║            Linux-like Environment         ║", green) .. "\n"
 	welcome = welcome .. Utils.colorText("╚════════════════════════════════════════════╝", green) .. "\n\n"
+	welcome = welcome .. Utils.colorText("📖 Press F1 or click 📖 button to open the Handbook!", yellow) .. "\n"
 	welcome = welcome .. Utils.colorText("Type 'help' to see available commands.", gray) .. "\n"
-	welcome = welcome .. Utils.colorText("Type 'history' to see your command history.", gray) .. "\n"
-	welcome = welcome .. Utils.colorText("Press ` (backtick) or click the button to toggle terminal.", gray) .. "\n\n"
+	welcome = welcome .. Utils.colorText("Press ` (backtick) or click > button to toggle terminal.", gray) .. "\n\n"
 	welcome = welcome .. Utils.colorText("System initialized. Have fun hacking!", yellow)
 
 	self.terminalUI:appendOutput(welcome)
 	
-	-- Update button state
+	-- Update button states
 	self.terminalButton:setTerminalState(self.terminalUI.isVisible)
+	self.handbookButton:setHandbookState(self.handbookUI.isVisible)
 end
 
 function TerminalController:destroy()
@@ -233,6 +256,8 @@ function TerminalController:destroy()
 	self.nanoEditor:destroy()
 	self.htopViewer:destroy()
 	self.terminalButton:destroy()
+	self.handbookUI:destroy()
+	self.handbookButton:destroy()
 end
 
 return TerminalController
