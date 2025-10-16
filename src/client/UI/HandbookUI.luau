@@ -21,7 +21,11 @@ function HandbookUI.new(playerGui: PlayerGui)
 	self.tabs = {}
 
 	self:_createUI()
-	self:_loadContent()
+	
+	-- Load initial content
+	task.defer(function()
+		self:_loadContent()
+	end)
 
 	return self
 end
@@ -292,7 +296,7 @@ end
 function HandbookUI:_createSection(title: string, content: string, orderIndex: number)
 	local section = Instance.new("Frame")
 	section.Name = "Section_" .. title
-	section.Size = UDim2.new(1, 0, 0, 0)
+	section.Size = UDim2.new(1, 0, 0, 100) -- Start with minimum size
 	section.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
 	section.BorderSizePixel = 0
 	section.LayoutOrder = orderIndex
@@ -312,7 +316,7 @@ function HandbookUI:_createSection(title: string, content: string, orderIndex: n
 	-- Title
 	local titleLabel = Instance.new("TextLabel")
 	titleLabel.Name = "Title"
-	titleLabel.Size = UDim2.new(1, 0, 0, 25)
+	titleLabel.Size = UDim2.new(1, -30, 0, 25)
 	titleLabel.BackgroundTransparency = 1
 	titleLabel.Text = title
 	titleLabel.Font = Enum.Font.SourceSansBold
@@ -320,12 +324,13 @@ function HandbookUI:_createSection(title: string, content: string, orderIndex: n
 	titleLabel.TextColor3 = Constants.COLORS.PROMPT_COLOR
 	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 	titleLabel.TextYAlignment = Enum.TextYAlignment.Top
+	titleLabel.TextWrapped = false
 	titleLabel.Parent = section
 
 	-- Content
 	local contentLabel = Instance.new("TextLabel")
 	contentLabel.Name = "Content"
-	contentLabel.Size = UDim2.new(1, 0, 0, 0)
+	contentLabel.Size = UDim2.new(1, -30, 1, -40) -- Fill available space
 	contentLabel.Position = UDim2.new(0, 0, 0, 30)
 	contentLabel.BackgroundTransparency = 1
 	contentLabel.Text = content
@@ -335,12 +340,14 @@ function HandbookUI:_createSection(title: string, content: string, orderIndex: n
 	contentLabel.TextXAlignment = Enum.TextXAlignment.Left
 	contentLabel.TextYAlignment = Enum.TextYAlignment.Top
 	contentLabel.TextWrapped = true
+	contentLabel.AutomaticSize = Enum.AutomaticSize.Y
 	contentLabel.Parent = section
 
-	-- Auto-size
-	local textBounds = contentLabel.TextBounds
-	contentLabel.Size = UDim2.new(1, 0, 0, textBounds.Y)
-	section.Size = UDim2.new(1, 0, 0, textBounds.Y + 50)
+	-- Wait for text to render and then auto-size the section
+	task.defer(function()
+		local contentHeight = contentLabel.AbsoluteSize.Y
+		section.Size = UDim2.new(1, 0, 0, contentHeight + 50)
+	end)
 
 	return section
 end
@@ -946,6 +953,11 @@ end
 function HandbookUI:show()
 	self.handbookFrame.Visible = true
 	self.isVisible = true
+	
+	-- Ensure content is loaded
+	if not self.currentTab then
+		self:_switchTab("basics")
+	end
 end
 
 function HandbookUI:hide()
