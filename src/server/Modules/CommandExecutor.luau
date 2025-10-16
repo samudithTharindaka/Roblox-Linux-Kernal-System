@@ -30,6 +30,12 @@ function CommandExecutor:registerCommand(name: string, commandDef: any)
 end
 
 function CommandExecutor:registerCommands(commands: { [string]: any })
+	-- Validate that commands is a table
+	if not commands or type(commands) ~= "table" then
+		warn("[CommandExecutor] registerCommands called with invalid argument:", commands)
+		return
+	end
+	
 	for name, commandDef in pairs(commands) do
 		self:registerCommand(name, commandDef)
 	end

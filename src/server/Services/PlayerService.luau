@@ -21,15 +21,17 @@ local SystemCommands = require(script.Parent.Parent.Commands.SystemCommands)
 local NetworkingCommands = require(script.Parent.Parent.Commands.NetworkingCommands)
 local SecurityCommands = require(script.Parent.Parent.Commands.SecurityCommands)
 local HackingCommands = require(script.Parent.Parent.Commands.HackingCommands)
+local MultiplayerCommands = require(script.Parent.Parent.Commands.MultiplayerCommands)
 
 local PlayerService = {}
 PlayerService.__index = PlayerService
 
-function PlayerService.new()
+function PlayerService.new(networkService: any?)
 	local self = setmetatable({}, PlayerService)
 
 	self.playerSessions = {}
 	self.dataPersistence = DataPersistence.new()
+	self.networkService = networkService -- Store reference to NetworkService
 
 	-- Auto-save loop
 	task.spawn(function()
