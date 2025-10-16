@@ -6,8 +6,13 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local PlayerService = require(script.Services.PlayerService)
+local NetworkService = require(script.Services.NetworkService)
 
 print("[RobloxOS] Server starting...")
+
+-- Initialize NetworkService
+local networkService = NetworkService.new()
+print("[RobloxOS] NetworkService initialized")
 
 -- Create remotes folder
 local remotesFolder = Instance.new("Folder")
@@ -35,10 +40,14 @@ local saveFileRemote = Instance.new("RemoteEvent")
 saveFileRemote.Name = "SaveFile"
 saveFileRemote.Parent = remotesFolder
 
+local securityAlertRemote = Instance.new("RemoteEvent")
+securityAlertRemote.Name = "SecurityAlert"
+securityAlertRemote.Parent = remotesFolder
+
 print("[RobloxOS] Remote events created")
 
--- Initialize PlayerService
-local playerService = PlayerService.new()
+-- Initialize PlayerService with NetworkService
+local playerService = PlayerService.new(networkService)
 
 print("[RobloxOS] PlayerService initialized")
 

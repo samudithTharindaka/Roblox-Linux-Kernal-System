@@ -104,12 +104,16 @@ function PlayerService:createSession(player: Player)
 	-- Create command executor
 	session.executor = CommandExecutor.new(session.playerState, session.vfs, session.user, session.auditLog)
 
+	-- Store network service reference in executor context
+	session.networkService = self.networkService
+
 	-- Register all commands
 	session.executor:registerCommands(FileSystemCommands)
 	session.executor:registerCommands(SystemCommands)
 	session.executor:registerCommands(NetworkingCommands)
 	session.executor:registerCommands(SecurityCommands)
 	session.executor:registerCommands(HackingCommands)
+	session.executor:registerCommands(MultiplayerCommands)
 
 	-- Add nano command (special handling for editor)
 	session.executor:registerCommand("nano", {
@@ -219,6 +223,11 @@ MEM: [||||||||||||||                              ] 32.1%
 	-- Store session
 	self.playerSessions[userId] = session
 
+	-- Register player with NetworkService
+	if self.networkService then
+		self.networkService:registerPlayer(player, session.playerState.ipAddress, true)
+	end
+
 	-- Send initial prompt to client
 	self:updatePrompt(player)
 
@@ -241,6 +250,11 @@ function PlayerService:destroySession(player: Player)
 
 	-- Save data
 	self:saveSession(player)
+
+	-- Unregister from NetworkService
+	if self.networkService then
+		self.networkService:unregisterPlayer(player)
+	end
 
 	-- Log session end
 	session.auditLog:addEntry(session.username, "SESSION_END", "User logged out", "info", session.playerState.ipAddress)
@@ -282,6 +296,9 @@ function PlayerService:executeCommand(player: Player, command: string)
 
 	-- Add to history
 	table.insert(session.playerState.commandHistory, command)
+
+	-- Add networkService to executor context
+	session.executor.networkService = self.networkService
 
 	-- Execute command
 	local result = session.executor:execute(command)
