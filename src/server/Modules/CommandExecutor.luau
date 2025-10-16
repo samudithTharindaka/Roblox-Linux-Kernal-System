@@ -81,6 +81,7 @@ function CommandExecutor:execute(input: string): Types.CommandResult
 		auditLog = self.auditLog,
 		environment = self.environment,
 		executor = self,
+		networkService = self.networkService, -- Add networkService to context
 	}
 
 	local success, result = pcall(commandDef.execute, context, expandedArgs)

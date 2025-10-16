@@ -8,11 +8,12 @@ local Utils = require(game.ReplicatedStorage.Shared.Utils)
 local User = {}
 User.__index = User
 
-function User.new(username: string, uid: number)
+function User.new(username: string, uid: number, player: Player?)
 	local self = setmetatable({}, User)
 
 	self.username = username
 	self.uid = uid
+	self.player = player -- Store player reference
 	self.groups = { "users" }
 	self.homeDirectory = "/home/" .. username
 	self.passwordHash = Utils.hash("changeme", username) -- Default password
@@ -125,9 +126,9 @@ function User:serialize(): string
 	return game:GetService("HttpService"):JSONEncode(data)
 end
 
-function User.deserialize(data: string): any
+function User.deserialize(data: string, player: Player?): any
 	local decoded = game:GetService("HttpService"):JSONDecode(data)
-	local user = User.new(decoded.username, decoded.uid)
+	local user = User.new(decoded.username, decoded.uid, player)
 	user.groups = decoded.groups
 	user.homeDirectory = decoded.homeDirectory
 	user.passwordHash = decoded.passwordHash

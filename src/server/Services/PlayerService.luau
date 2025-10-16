@@ -79,9 +79,9 @@ function PlayerService:createSession(player: Player)
 
 	-- Initialize or restore User
 	if savedData and savedData.user then
-		session.user = User.deserialize(savedData.user)
+		session.user = User.deserialize(savedData.user, player)
 	else
-		session.user = User.new(username, userId)
+		session.user = User.new(username, userId, player)
 		session.user:grantSudo() -- Grant sudo by default for testing
 	end
 
